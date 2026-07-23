@@ -1,5 +1,7 @@
-package com.example.WorkoutTracker.Training;
+package com.example.workouttracker.service;
 
+import com.example.workouttracker.entity.Training;
+import com.example.workouttracker.repository.TrainingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +21,5 @@ public class TrainingService {
         return trainingRepository.findAll();
     }
 
-    public Training getTrainingByDate(LocalDate date){
 
-    }
 }

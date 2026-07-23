@@ -1,4 +1,4 @@
-package com.example.WorkoutTracker.Training;
+package com.example.workouttracker.entity;
 
 import jakarta.persistence.*;
 
