@@ -8,61 +8,62 @@ import java.time.LocalDate;
 @Table
 public class Training {
     @Id
-    @GeneratedValue(
-            strategy = GenerationType.IDENTITY,
-            generator = "training_sequence"
-    )
-     private Long id;
+    private Long id;
      private String type;
      private String description;
      private LocalDate date;
-
-     public Training(Long ID, String Type, String Description, LocalDate Date){
-         id=ID;
-         type=Type;
-         description=Description;
-         date=Date;
-     }
-    public Training(Long ID, String Type, String Description){
-        id=ID;
-        type=Type;
-        description=Description;
-        date=LocalDate.now();
-    }
+     @ManyToOne
+     private User user;
 
     public Training() {
+    }
+
+    public Training(Long id, String type, String description, LocalDate date, User user) {
+        this.id = id;
+        this.type = type;
+        this.description = description;
+        this.date = date;
+        this.user = user;
     }
 
     public Long getId() {
         return id;
     }
 
-    public String getType() {
-        return type;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public LocalDate getDate() {
-        return date;
-    }
-
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getType() {
+        return type;
     }
 
     public void setType(String type) {
         this.type = type;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
     public void setDescription(String description) {
         this.description = description;
     }
 
+    public LocalDate getDate() {
+        return date;
+    }
+
     public void setDate(LocalDate date) {
         this.date = date;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @Override
@@ -72,6 +73,7 @@ public class Training {
                 ", type='" + type + '\'' +
                 ", description='" + description + '\'' +
                 ", date=" + date +
+                ", user=" + user +
                 '}';
     }
 }

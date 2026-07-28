@@ -1,34 +1,39 @@
 package com.example.workouttracker.entity;
 
 import com.example.workouttracker.enums.Role;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.util.List;
 
+import static com.example.workouttracker.enums.Role.ROLE_USER;
+
 @Entity
+@Table(name = "users")
 public class User {
     @Id
+    @GeneratedValue(
+            strategy = GenerationType.IDENTITY,
+            generator = "training_sequence"
+    )
     private Long id;
     private String username;
     private String password;
     private String email;
     private LocalDate dob;
     private Role role;
+    @OneToMany(mappedBy = "user")
     private List<Training> trainingList;
 
     public User() {
     }
 
-    public User(Long id, String username, String password, String email, LocalDate dob, Role role, List<Training> trainingList) {
-        this.id = id;
+    public User(String username, String password, String email, LocalDate dob) {
         this.username = username;
         this.password = password;
         this.email = email;
         this.dob = dob;
-        this.role = role;
-        this.trainingList = trainingList;
+        this.role = ROLE_USER;
     }
 
     public Long getId() {
@@ -85,6 +90,10 @@ public class User {
 
     public void setTrainingList(List<Training> trainingList) {
         this.trainingList = trainingList;
+    }
+
+    public void addTraining(Training training){
+        trainingList.add(training);
     }
 
     @Override
