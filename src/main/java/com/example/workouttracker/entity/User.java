@@ -22,7 +22,7 @@ public class User {
     private String email;
     private LocalDate dob;
     private Role role;
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Training> trainingList;
 
     public User() {

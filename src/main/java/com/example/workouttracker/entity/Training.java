@@ -8,11 +8,13 @@ import java.time.LocalDate;
 @Table
 public class Training {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
      private String type;
      private String description;
      private LocalDate date;
      @ManyToOne
+     @JoinColumn(name="user_id")
      private User user;
 
     public Training() {

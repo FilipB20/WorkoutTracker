@@ -21,7 +21,7 @@ public class UserMapper {
     }
 
     // Pretvori Entity -> UserReturnDTO
-    public UserReturnDTO toReturnDto(User user) {
+    public static UserReturnDTO toReturnDto(User user) {
         if (user == null) return null;
         return new UserReturnDTO(
                 user.getId(),

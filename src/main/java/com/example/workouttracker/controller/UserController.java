@@ -1,8 +1,7 @@
 package com.example.workouttracker.controller;
-import com.example.workouttracker.dto.UserDTO;
 
 import com.example.workouttracker.dto.UserRequestDTO;
-import com.example.workouttracker.entity.User;
+import com.example.workouttracker.dto.UserReturnDTO;
 import com.example.workouttracker.service.UserService;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,8 +17,13 @@ public class UserController {
     }
 
     @GetMapping
-    public List<UserDTO> getAllUsers() {
+    public List<UserReturnDTO> getAllUsers() {
         return userService.getAllUsers();
+    }
+
+    @GetMapping("/{id}")
+    public UserReturnDTO getUserById(@PathVariable Long id){
+        return userService.getUserById(id);
     }
 
     @PostMapping
@@ -30,6 +34,10 @@ public class UserController {
     @PutMapping("/{id}")
     public void changeUserName(@PathVariable Long id, @RequestParam String newName){
         userService.changeUserName(id,newName);
+    }
+    @DeleteMapping("/{id}")
+    public void deleteUserById(@PathVariable Long id){
+        userService.deleteUserById(id);
     }
 
 }

@@ -8,11 +8,10 @@ import com.example.workouttracker.entity.User;
 import com.example.workouttracker.mapper.UserMapper;
 import com.example.workouttracker.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -25,10 +24,10 @@ public class UserService {
         this.userMapper=mapper;
     }
 
-    public List<UserDTO> getAllUsers(){
+    public List<UserReturnDTO> getAllUsers(){
         return userRepository.findAll()
                 .stream()
-                .map(user -> new UserDTO(
+                .map(user -> new UserReturnDTO(
                         user.getId(),
                         user.getUsername(),
                         user.getEmail(),
@@ -46,6 +45,7 @@ public class UserService {
                 user.email(),
                 user.dob()
         ));
+        log.info("Dodan je novi korisnik!");
     }
 
     public UserDTO changeUserName(Long id, String newName) {
@@ -55,5 +55,19 @@ public class UserService {
         User updatedUser = userRepository.save(userToUpdate);
         return userMapper.toDto(updatedUser);
 
+    }
+    public UserReturnDTO getUserById(Long id){
+        log.info("Vraća se user po ID-u {} u vrijeme:{}",id,LocalDate.now());
+        User userById=userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Korisnik s ID-jem " + id + " nije pronađen!"));
+        return UserMapper.toReturnDto(userById);
+    }
+    public void deleteUserById(Long id){
+        log.info("Briše se user po ID-u {} u vrijeme {}",id,LocalDate.now());
+        if (!userRepository.existsById(id)) {
+            throw new RuntimeException("Korisnik s ID-jem "+id+" nije pronađen!");
+        }
+            userRepository.deleteById(id);
+            log.info("Obrisan user s ID {}",id);
     }
 }
