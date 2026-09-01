@@ -1,7 +1,9 @@
 package com.example.workouttracker.service;
 
+import com.example.workouttracker.dto.TrainingReturnDTO;
 import com.example.workouttracker.entity.Training;
 import com.example.workouttracker.entity.User;
+import com.example.workouttracker.mapper.TrainingMapper;
 import com.example.workouttracker.repository.TrainingRepository;
 import com.example.workouttracker.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -36,9 +38,13 @@ public class TrainingService {
         trainingRepository.save(training);
     }
 
-    public List<Training> getAllTrainingsByUserId(Long id){
+    public List<TrainingReturnDTO> getAllTrainingsByUserId(Long id){
         log.info("Vraćaju se svi treninzi koji pripadaju korisniku s ID-jem {}",id);
-         return trainingRepository.getAllTrainingsByUserId(id);
+        List<TrainingReturnDTO> trainingsToReturn = List.of();
+        for(Training training : trainingRepository.getAllTrainingsByUserId(id)){
+            trainingsToReturn.add(TrainingMapper.TrainingToDto(training));
+        }
+         return trainingsToReturn;
     }
 
 }

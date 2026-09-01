@@ -1,5 +1,3 @@
-GET http://localhost:8080/api/v1/users
-
 POST http://localhost:8080/api/v1/users
 Content-Type: application/json
 
@@ -10,3 +8,15 @@ Content-Type: application/json
   "dob": "2000-01-15"
 }
 
+###
+POST http://localhost:8080/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "filip_b",
+  "password": "tajna_sifra_123"
+}
+
+###
+GET http://localhost:8080/api/v1/users
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmaWxpcF9iIiwiaWF0IjoxNzg4MjYxNTI3LCJleHAiOjE3ODgzNDc5Mjd9._kH6XuV1TEgdy_f8OEDTkNBSz23y1BGSxW5jTl8zDaI

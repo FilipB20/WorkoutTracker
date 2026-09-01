@@ -1,5 +1,6 @@
 package com.example.workouttracker.controller;
 
+import com.example.workouttracker.dto.TrainingReturnDTO;
 import com.example.workouttracker.entity.Training;
 import com.example.workouttracker.service.TrainingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,7 @@ public class TrainingController {
         trainingService.addNewTrainingToUser(id,training);
     }
     @GetMapping("user/{id}")
-    public List<Training> getAllTrainingsByUserId(@PathVariable Long id){
+    public List<TrainingReturnDTO> getAllTrainingsByUserId(@PathVariable Long id){
         return trainingService.getAllTrainingsByUserId(id);
     }
 }
