@@ -8,8 +8,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class UserMapper {
-
-    // Pretvori Entity -> UserDTO
     public UserDTO toDto(User user) {
         if (user == null) return null;
         return new UserDTO(
@@ -19,8 +17,6 @@ public class UserMapper {
                 user.getDob()
         );
     }
-
-    // Pretvori Entity -> UserReturnDTO
     public static UserReturnDTO toReturnDto(User user) {
         if (user == null) return null;
         return new UserReturnDTO(
@@ -30,8 +26,6 @@ public class UserMapper {
                 user.getDob()
         );
     }
-
-    // Pretvori UserRequestDTO -> Entity
     public User toEntity(UserRequestDTO dto) {
         if (dto == null) return null;
         User user = new User();
