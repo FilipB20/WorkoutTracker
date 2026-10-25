@@ -1,4 +1,4 @@
-package com.example.workouttracker.dto;
+package com.example.workouttracker.exceptions;
 
 public class UserWithIdNotFound extends Exception {
     public UserWithIdNotFound(Long id) {

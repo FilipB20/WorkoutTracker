@@ -2,10 +2,12 @@ package com.example.workouttracker.service;
 
 import com.example.workouttracker.config.JwtService;
 import com.example.workouttracker.dto.*;
-import com.example.workouttracker.entity.Training;
 import com.example.workouttracker.entity.User;
+import com.example.workouttracker.enums.Role;
+import com.example.workouttracker.exceptions.UserWithIdNotFound;
 import com.example.workouttracker.mapper.UserMapper;
 import com.example.workouttracker.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,29 +24,29 @@ import java.util.concurrent.CompletableFuture;
 @Slf4j
 @Service
 public class UserService {
-    private final UserRepository userRepository;
-    private final UserMapper userMapper;
-    private final PasswordEncoder passwordEncoder;
+    private final UserRepository _userRepository;
+    private final UserMapper _userMapper;
+    private final PasswordEncoder _passwordEncoder;
     private final JwtService jwtService;
-    private final AuthenticationManager authenticationManager;
+    private final AuthenticationManager _authenticationManager;
 
     public UserService(UserRepository repository, UserMapper mapper, PasswordEncoder encoder, JwtService jwtService, AuthenticationManager manager) {
-        this.userRepository = repository;
-        this.userMapper=mapper;
-        this.passwordEncoder=encoder;
+        this._userRepository = repository;
+        this._userMapper =mapper;
+        this._passwordEncoder =encoder;
         this.jwtService=jwtService;
-        this.authenticationManager=manager;
+        this._authenticationManager =manager;
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        authenticationManager.authenticate(
+        _authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.username(),
                         request.password()
                 )
         );
 
-        var user = userRepository.findByUsername(request.username())
+        var user = _userRepository.findByUsername(request.username())
                 .orElseThrow(() -> new UsernameNotFoundException("Korisnik nije pronađen"));
 
         var jwtToken = jwtService.generateToken(user);
@@ -52,7 +54,7 @@ public class UserService {
     }
 
     public List<UserReturnDTO> getAllUsers(){
-        return userRepository.findAll()
+        return _userRepository.findAll()
                 .stream()
                 .map(user -> new UserReturnDTO(
                         user.getId(),
@@ -63,9 +65,9 @@ public class UserService {
     }
 
     public void addNewUser(UserRequestDTO user){
-        userRepository.save(new User(
+        _userRepository.save(new User(
                 user.username(),
-                passwordEncoder.encode(user.password()),
+                _passwordEncoder.encode(user.password()),
                 user.email(),
                 user.dob()
         ));
@@ -73,11 +75,11 @@ public class UserService {
     }
 
     public UserDTO changeUserName(Long id, String newName) throws UserWithIdNotFound {
-        User userToUpdate = userRepository.findById(id)
+        User userToUpdate = _userRepository.findById(id)
                 .orElseThrow(()->new UserWithIdNotFound(id));
         userToUpdate.setUsername(newName);
-        User updatedUser = userRepository.save(userToUpdate);
-        return userMapper.toDto(updatedUser);
+        User updatedUser = _userRepository.save(userToUpdate);
+        return _userMapper.toDto(updatedUser);
 
     }
     //demonstracija asinkrone metode, previse je za potrebe jednostavne crud aplikacije
@@ -85,16 +87,24 @@ public class UserService {
     public CompletableFuture<UserReturnDTO> getUserById(Long id) throws UserWithIdNotFound {
         log.info("Vraća se user po ID-u {} u vrijeme:{}",id, LocalDateTime.now());
 
-        User userById=userRepository.findById(id)
+        User userById= _userRepository.findById(id)
                 .orElseThrow(() -> new UserWithIdNotFound(id));
         return CompletableFuture.completedFuture(UserMapper.toReturnDto(userById));
     }
     public void deleteUserById(Long id) throws UserWithIdNotFound {
         log.info("Briše se user po ID-u {} u vrijeme {}",id,LocalDate.now());
-        if (!userRepository.existsById(id)) {
+        if (!_userRepository.existsById(id)) {
             throw new UserWithIdNotFound(id);
         }
-            userRepository.deleteById(id);
+            _userRepository.deleteById(id);
             log.info("Obrisan user s ID {}",id);
+    }
+    @Transactional
+    public void AssignAdminRoleToUser(Long id) throws UserWithIdNotFound {
+        log.info("Dodavanje admin role useru s ID: {}", id);;
+        User userById= _userRepository.findById(id)
+                .orElseThrow(() -> new UserWithIdNotFound(id));
+        userById.setRole(Role.ROLE_ADMIN);
+        _userRepository.save(userById);
     }
 }

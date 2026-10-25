@@ -1,19 +1,23 @@
 package com.example.workouttracker.service;
 
+import com.example.workouttracker.dto.TrainingRequestDTO;
 import com.example.workouttracker.dto.TrainingReturnDTO;
+import com.example.workouttracker.exceptions.UserWithIdNotFound;
+import com.example.workouttracker.exceptions.UserWithNameNotFound;
 import com.example.workouttracker.entity.Training;
 import com.example.workouttracker.entity.User;
 import com.example.workouttracker.mapper.TrainingMapper;
 import com.example.workouttracker.repository.TrainingRepository;
 import com.example.workouttracker.repository.UserRepository;
-import lombok.AllArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
+import org.springframework.security.core.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @Slf4j
@@ -31,36 +35,45 @@ public class TrainingService {
         return trainingRepository.findAll();
     }
 
-    public TrainingReturnDTO createNewTrainingToMe(Authentication authentication,Training training){
-        User user = userRepository.findByUsername(authentication.name())
-                .orElseThrow(()-> new RuntimeException("Nije pronađen user sa nazivom"+authentication.name()));
-        training.setUser(user);
+    @Transactional
+    public TrainingReturnDTO createNewTrainingToMe(Authentication authentication,TrainingRequestDTO trainingRequestDTO) throws UserWithNameNotFound {
+        User user = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(()-> new UserWithNameNotFound(authentication.getName()));
+        Training training = TrainingMapper.trainingRequestToTraining(trainingRequestDTO,user);
         trainingRepository.save(training);
         return TrainingMapper.TrainingToDto(training);
     }
 
-    public void addNewTrainingToUser(Long id,Training training){
+    @Transactional
+    public void addNewTrainingToUser(Long id, TrainingRequestDTO trainingRequestDTO) throws UserWithIdNotFound {
         log.info("Pokreće se dodavanje treninga korisniku {}",id);
         User userById = userRepository.findById(id)
-                .orElseThrow(()-> new RuntimeException("Nije pronađen user sa ID-jem"+id));
-        training.setUser(userById);
+                .orElseThrow(()-> new UserWithIdNotFound(id));
+        Training training = TrainingMapper.trainingRequestToTraining(trainingRequestDTO,userById);
         trainingRepository.save(training);
     }
 
-    public List<TrainingReturnDTO> getAllTrainingsByUserId(Long id){
+    public List<TrainingReturnDTO> getAllTrainingsByUserId(Long id) throws UserWithIdNotFound {
         log.info("Vraćaju se svi treninzi koji pripadaju korisniku s ID-jem {}",id);
+        if (!userRepository.existsById(id)) {
+            throw new UserWithIdNotFound(id);
+        }
         return trainingRepository.getAllTrainingsByUserId(id)
                 .stream()
                 .map(TrainingMapper::TrainingToDto)
                 .toList();
     }
 
-    public List<TrainingReturnDTO> getAllTrainingsByUsername(Authentication authentication) {
-        log.info("Vracaju se svi treninzi za prijavljenog usera: "+authentication.name());
-        return trainingRepository.getAllTrainingsByUserUsername(authentication.name())
+    @Async
+    public CompletableFuture<List<TrainingReturnDTO>> getAllTrainingsByUsername(String name) throws UserWithNameNotFound {
+        log.info("Vracaju se svi treninzi za prijavljenog usera: "+name);
+        if (!userRepository.existsByUsername(name)) {
+            throw new UserWithNameNotFound(name);
+        }
+        return CompletableFuture.completedFuture(trainingRepository.getAllTrainingsByUserUsername(name)
                 .stream()
                 .map(TrainingMapper::TrainingToDto)
-                .toList();
+                .toList());
 
     }
 }

@@ -3,12 +3,13 @@ package com.example.workouttracker.controller;
 import com.example.workouttracker.dto.UserDTO;
 import com.example.workouttracker.dto.UserRequestDTO;
 import com.example.workouttracker.dto.UserReturnDTO;
-import com.example.workouttracker.dto.UserWithIdNotFound;
+import com.example.workouttracker.exceptions.UserWithIdNotFound;
 import com.example.workouttracker.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -56,6 +57,12 @@ public class UserController {
     public ResponseEntity<Void> deleteUserById(@PathVariable Long id) throws UserWithIdNotFound
     {
         _userService.deleteUserById(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> assignAdminRoleToUser(@PathVariable Long id) throws UserWithIdNotFound {
+        _userService.AssignAdminRoleToUser(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
